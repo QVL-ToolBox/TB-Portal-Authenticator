@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+coverage/
+build/
+
+# Claude local
+.claude/settings.local.json
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Archives npm pack et cles / certificats
+*.tgz
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+
+# Logs
+*.log
