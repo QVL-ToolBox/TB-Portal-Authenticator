@@ -6,6 +6,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/)
 et ce paquet adhère au [Semantic Versioning](https://semver.org/lang/fr/). La version publiée est celle
 de `package.json` : ce fichier n'est pas lu par la pipeline.
 
+## [0.5.0] - 2026-10-29
+
+### Modifié
+
+- Compatible `@canop/ui` 2.x : peerDependency élargie à `^1.3.1 || ^2.0.0`, `@canop/ui` 2.1.1 en dépendance de développement. Aucun export ni prop utilisé par le paquet n'est retiré ou modifié en 2.0 : code inchangé. Rendu suivant la 2.x : fond de `Layout` en trame lave et titre de marque à la couleur de texte du thème, état vide des grilles admin (`EmptyState surface="plain"`) sans surface propre, squelettes à la place des `Spinner` medium dans `PageContent` (#226).
+
 ## [0.4.1] - 2026-10-20
 
 ### Modifié

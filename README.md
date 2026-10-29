@@ -1,18 +1,18 @@
 # TB-Portal-Authenticator
 
-Paquet `@canop/auth-portals` : socle commun des portails d'authentification QVL (pages, hooks, client API), repris du portail d'authentification existant et rendu agnostique du projet. Publié sur Verdaccio (`https://npm.qvl-project.com/`), épinglé par chaque projet.
+Paquet `@canop/auth-portals` : socle commun des portails d'authentification QVL (pages, hooks, client API), repris du portail d'authentification existant et rendu agnostique du projet. Publié sur Verdaccio (`https://npm.qvl-project.com/`) et sur [npmjs](https://www.npmjs.com/package/@canop/auth-portals), épinglé par chaque projet. Licence MIT.
 
-Miroir public à chaque release : [GitHub `QVL-ToolBox/TB-Portal-Authenticator`](https://github.com/QVL-ToolBox/TB-Portal-Authenticator) (un commit par version) et [npmjs](https://www.npmjs.com/package/@canop/auth-portals).
+Miroir public à chaque release : [GitHub `QVL-ToolBox/TB-Portal-Authenticator`](https://github.com/QVL-ToolBox/TB-Portal-Authenticator) (un commit instantané par version, tag `vX.Y.Z`, sans l'historique Azure). Azure DevOps reste la source (PR, CI).
 
 Exemple d'intégration complet : le dépôt ToolBox [`Authenticator`](https://github.com/QVL-ToolBox/Authenticator) (portails `portal-auth/` et `portal-admin/` minces sur ce paquet, prêts à cloner).
 
 ## Installation
 
 ```bash
-npm install --save-exact @canop/auth-portals@0.4.1
+npm install --save-exact @canop/auth-portals@0.5.0
 ```
 
-Peer dependencies, une seule copie chez le consommateur : `@canop/ui` (^1.3.1), `react` (^19), `react-router-dom` (^7), ainsi que les peers de `@canop/ui` (MUI, Emotion, framer-motion). Le registre du scope `@canop` est déclaré dans `.npmrc` (`@canop:registry=https://npm.qvl-project.com/`).
+Peer dependencies, une seule copie chez le consommateur : `@canop/ui` (^1.3.1 ou ^2), `react` (^19), `react-router-dom` (^7), ainsi que les peers de `@canop/ui` (MUI, Emotion, framer-motion). Les deux paquets sont sur npmjs : aucun `.npmrc` n'est requis. Un projet QVL peut cibler Verdaccio en déclarant le scope dans `.npmrc` (`@canop:registry=https://npm.qvl-project.com/`).
 
 ## Usage
 
@@ -156,15 +156,15 @@ Libellés des portails : chaque portail déclaré côté Auth s'affiche sous le 
 
 ## Publication
 
-`azure-pipelines.yml` (pool `QVL-Local`, calquée sur CanopUI, `version.mjs` de `QVL-ToolBox/Pipelines` en mode registre) :
+`azure-pipelines.yml` (pool `QVL-Local`, agent Linux `qvl-prod-paquets` sans sudo, étapes bash, calquée sur CanopUI, `version.mjs` de `QVL-ToolBox/Pipelines` en mode registre) :
 
 | Stage | Branches | Contenu |
 |---|---|---|
-| Qualite | toutes | `version.mjs check`, `npm ci` (build via `prepare`), lint, Prettier, osv-scanner, Vitest |
+| Qualite | toutes | `version.mjs check`, osv-scanner épinglé (`scanners.sh` de `QVL-ToolBox/Pipelines`), `npm ci` (build via `prepare`), lint, Prettier, osv-scanner, Vitest |
 | Version | `main` | `version.mjs release` : la version de `package.json` est-elle à publier ? |
-| Release | `main`, si nouvelle version | approbation de l'environnement `verdaccio`, tag `vX.Y.Z` (message `@canop/auth-portals vX.Y.Z`), `npm pack` puis publication du tarball sur Verdaccio, artefact du paquet |
+| Release | `main`, si nouvelle version | approbation de l'environnement `verdaccio`, tag `vX.Y.Z` (message `@canop/auth-portals vX.Y.Z`), `npm pack` puis publication du tarball sur Verdaccio, artefact du paquet ; puis job `Npmjs` (même tarball publié sur npmjs, `npmjs-publish.yml`) et job `Miroir` (instantané sur GitHub, `mirror-github.yml`) |
 
-La version se monte sur la branche (`package.json`), le merge sur `main` publie ; tags jamais posés à la main. Prérequis de la définition : variable secrète `NPM_TOKEN`, accès aux environnements `verdaccio` et au dépôt `QVL-ToolBox/Pipelines`.
+La version se monte sur la branche (`package.json`), le merge sur `main` publie ; tags jamais posés à la main. Définition Azure `TB-Portal-Authenticator` (id 26). Prérequis : variables secrètes `NPM_TOKEN` (Verdaccio), `NPMJS_TOKEN` (npmjs) et `GITHUB_MIRROR_TOKEN` (miroir ; sans l'un de ces deux derniers, l'étape correspondante ne tourne pas), accès à l'environnement `verdaccio` et au dépôt `QVL-ToolBox/Pipelines`.
 
 ## Décisions
 
@@ -176,3 +176,4 @@ La version se monte sur la branche (`package.json`), le merge sur `main` publie 
 - 2026-10-16 — Pages admin montées seulement sur option `admin: true` (défaut `false`) : un portail d'authentification n'expose plus `/users`, `/roles` ni `/portals` ; changement de comportement par défaut par rapport à la 0.2.0 (#176, D11).
 - 2026-10-19 — Personnalisation à trois niveaux (thème, slots `branding.layout` / `branding.footer` / `adminLayout`, headless) et portail admin `createAdminApp` remonté du portail admin existant ; client HTTP unique par portail admin ; en-têtes de sécurité posés par défaut par `startPortalServer` (jeu de la gateway), `createPortalServer` inchangé (D2).
 - 2026-10-19 — Dépôt renommé `AuthPortals` → `TB-Portal-Authenticator` (l'ancienne URL `_git/AuthPortals` ne redirige pas) ; nom du paquet npm `@canop/auth-portals` inchangé.
+- 2026-10-29 — Peer `@canop/ui` élargie à `^1.3.1 || ^2.0.0` (0.5.0) : aucune API utilisée n'est touchée par les ruptures de la 2.0, les portails qui suivent `@canop/ui@latest` installent sans ERESOLVE ; tests et build sur la 2.1.1 (#226).
